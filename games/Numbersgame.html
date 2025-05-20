@@ -5,13 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cijfers Leren - Pirate Game</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f0e68c, #add8e6);
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
+    font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
   }
+
+header {
+  background-image: url('../images/Perkament.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  width: 100%; max-width: 640px;
+  padding: 1rem;
+  min-height: 120px;
+  text-align: center;
+  color: #464C50;
+  font-weight: bold;
+  font-size: 3rem;
+  letter-spacing: 1.5px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+div{
+      background: rgba(255 255 255 / 0.9);
+    max-width: 640px;
+    width: 100%;
+    margin: 2rem 1rem 4rem;
+    padding: 1rem;
+    border-radius: 12px;
+    color: #1a3f66;
+    font-size: 2rem;
+}
+
+.title {
+  padding-top: 7%;
+  }
+
   .container {
     max-width: 480px;
     margin: 2rem auto;
@@ -20,11 +54,7 @@
     border-radius: 12px;
     box-shadow: 0 0 12px rgba(0,0,0,0.15);
   }
-  h1 {
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #004d00;
-  }
+
   .progress-bar {
     background: #d3d3d3;
     border-radius: 10px;
@@ -201,8 +231,9 @@
 </style>
 </head>
 <body>
-  <div class="container" id="game-container">
-    <h1>Cijfers Leren</h1>
+    <header class="title">
+  Cijfer Leren
+</header>
     <div id="level-info"></div>
     <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
     <div class="stars" id="stars-container"></div>
@@ -211,7 +242,6 @@
     <div id="hint" class="hint" style="display:none;"></div>
     <div class="actions" id="actions"></div>
     <a href="../ui/HomeScreen.html"><button id="back-button">Terug naar schatkaart</button></a>
-  </div>
 
 <script>
   (function() {
