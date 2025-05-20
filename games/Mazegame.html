@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Piraten Doolhof</title>
+  <style>
+    body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fffbea;
+  margin: 0; padding: 20px;
+  display: flex;
+  justify-content: center;
+  color: #444;
+}
+
+.game-container {
+  max-width: 600px;
+  background: white;
+  padding: 20px 24px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgb(198 134 0 / 0.3);
+}
+
+.game-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #c68600;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+#level-info {
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #c68600;
+}
+
+#grid {
+  border: 2px solid #c68600;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: grid;
+  gap: 2px;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  border: 1px solid #ddd;
+  user-select: none;
+  background: #f9f1d1;
+}
+
+.cell.water {
+  background: #4a90e2;
+  color: white;
+}
+
+.cell.obstacle {
+  background: #7a7a7a;
+  color: white;
+}
+
+.cell.goal {
+  background: #ffd700;
+}
+
+.cell.pirate {
+  background: #f9f1d1;
+}
+
+#commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 40px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  font-weight: 600;
+  color: #555;
+}
+
+.command {
+  width: 36px;
+  height: 36px;
+  background: #a0d2ff;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: default;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.command.executed {
+  background: #66bb6a;
+  color: white;
+}
+
+button.game-button {
+  margin: 4px 6px 4px 0;
+  padding: 10px 14px;
+  background-color: #c68600;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.game-button:disabled {
+  background-color: #d3a734;
+  cursor: not-allowed;
+}
+
+#feedback {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+#feedback.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+#feedback.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+  </style>
+</head>
+<body>
+ <div id="game-container" class="game-container">
+  <h1>Piraten Doolhof</h1>
+  <div id="level-info"></div>
+  <div id="grid"></div>
+
+
+  <div>
+    <strong>Commando's:</strong>
+    <div id="commands"></div>
+  </div>
+
+  <div>
+    <button id="btn-up" class="game-button">⬆️</button>
+    <button id="btn-left" class="game-button">⬅️</button>
+    <button id="btn-down" class="game-button">⬇️</button>
+    <button id="btn-right" class="game-button">➡️</button>
+  </div>
+
+  <div style="margin-top:10px;">
+    <button id="btn-execute" class="game-button">Start</button>
+    <button id="btn-clear" class="game-button">Wis alles</button>
+    <button id="btn-remove" class="game-button">Wis laatste</button>
+    <button id="btn-restart" class="game-button">Herstart</button>
+    <button id="btn-next" class="game-button" style="display:none;">Volgende niveau</button>
+  </div>
+
+  <div id="feedback"></div>
+</div>
+
+  <script>
+    // Levels, zoals in jouw voorbeeld
+    const mazeLevels = [
+      {
+        grid: [
+          ['empty', 'empty', 'empty', 'empty', 'empty'],
+          ['empty', 'pirate', 'empty', 'treasure', 'empty'],
+          ['empty', 'empty', 'empty', 'empty', 'empty'],
+        ],
+        start: { row: 1, col: 1 },
+        goal: { row: 1, col: 3 },
+        maxCommands: 4
+      },
+      {
+        grid: [
+          ['empty', 'empty', 'empty', 'empty', 'empty'],
+          ['empty', 'pirate', 'empty', 'empty', 'empty'],
+          ['empty', 'empty', 'empty', 'treasure', 'empty'],
+        ],
+        start: { row: 1, col: 1 },
+        goal: { row: 2, col: 3 },
+        maxCommands: 5
+      },
+      {
+        grid: [
+          ['empty', 'empty', 'empty', 'empty', 'empty'],
+          ['empty', 'pirate', 'obstacle', 'treasure', 'empty'],
+          ['empty', 'empty', 'empty', 'obstacle', 'empty'],
+        ],
+        start: { row: 1, col: 1 },
+        goal: { row: 1, col: 3 },
+        maxCommands: 6
+      },
+    ];
+
+    // State
+    let level = 0;
+    let playerPosition = { row: 0, col: 0 };
+    let commands = [];
+    let isExecuting = false;
+    let executionIndex = 0;
+    let gameStatus = 'playing'; // playing, won, lost
+
+    // DOM references
+    const gridEl = document.getElementById('grid');
+    const commandsEl = document.getElementById('commands');
+    const feedbackEl = document.getElementById('feedback');
+    const levelInfoEl = document.getElementById('level-info');
+    const btnNext = document.getElementById('btn-next');
+
+    // Direction arrows map
+    const arrows = {
+      up: '⬆️',
+      right: '➡️',
+      down: '⬇️',
+      left: '⬅️',
+    };
+
+    // Initialize game
+    function initGame() {
+      const currentLevel = mazeLevels[level];
+      playerPosition = { ...currentLevel.start };
+      commands = [];
+      isExecuting = false;
+      executionIndex = 0;
+      gameStatus = 'playing';
+      feedbackEl.textContent = '';
+      feedbackEl.className = '';
+      btnNext.style.display = 'none';
+
+      renderGrid();
+      renderCommands();
+      updateLevelInfo();
+      updateButtons();
+    }
+
+    function updateLevelInfo() {
+      const currentLevel = mazeLevels[level];
+      levelInfoEl.textContent = `Niveau ${level + 1} van ${mazeLevels.length} — Max commando's: ${currentLevel.maxCommands}`;
+    }
+
+    function renderGrid() {
+      const currentLevel = mazeLevels[level];
+      const rows = currentLevel.grid.length;
+      const cols = currentLevel.grid[0].length;
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+
+      gridEl.innerHTML = '';
+
+      for(let r = 0; r < rows; r++) {
+        for(let c = 0; c < cols; c++) {
+          const cellType = currentLevel.grid[r][c];
+          const cellDiv = document.createElement('div');
+          cellDiv.classList.add('cell');
+cellDiv.classList.add(cellType === 'empty' ? 'empty' : cellType);
+
+          if (r === playerPosition.row && c === playerPosition.col) {
+            cellDiv.textContent = '🏴‍☠️';
+          } else if (r === currentLevel.goal.row && c === currentLevel.goal.col) {
+            cellDiv.classList.add('goal');
+            cellDiv.textContent = '📦';
+          } else if (cellType === 'water') {
+            cellDiv.textContent = '~';
+          } else if (cellType === 'obstacle') {
+            cellDiv.textContent = '🪨';
+          } else {
+            cellDiv.textContent = '';
+          }
+
+          gridEl.appendChild(cellDiv);
+        }
+      }
+    }
+
+    function renderCommands() {
+      commandsEl.innerHTML = '';
+      if (commands.length === 0) {
+        commandsEl.textContent = 'Nog geen commando\'s...';
+        return;
+      }
+
+      commands.forEach((cmd, idx) => {
+        const cmdDiv = document.createElement('div');
+        cmdDiv.classList.add('command');
+        if (cmd.executed) cmdDiv.classList.add('executed');
+        cmdDiv.textContent = arrows[cmd.direction];
+        commandsEl.appendChild(cmdDiv);
+      });
+    }
+
+    // Add command
+    function addCommand(direction) {
+      if (isExecuting || gameStatus !== 'playing') return;
+      const currentLevel = mazeLevels[level];
+      if (commands.length >= currentLevel.maxCommands) {
+        showFeedback('Je kunt niet meer commando\'s toevoegen!', 'error');
+        return;
+      }
+      commands.push({ direction, executed: false });
+      renderCommands();
+      updateButtons();
+    }
+
+    // Remove last command
+    function removeLastCommand() {
+      if (isExecuting || gameStatus !== 'playing') return;
+      commands.pop();
+      renderCommands();
+      updateButtons();
+    }
+
+    // Clear all commands
+    function clearCommands() {
+      if (isExecuting || gameStatus !== 'playing') return;
+      commands = [];
+      renderCommands();
+      updateButtons();
+    }
+
+    // Validate position
+    function isValidPosition(pos) {
+      const currentLevel = mazeLevels[level];
+      if (pos.row < 0 || pos.row >= currentLevel.grid.length) return false;
+      if (pos.col < 0 || pos.col >= currentLevel.grid[0].length) return false;
+      const cell = currentLevel.grid[pos.row][pos.col];
+      if (cell === 'obstacle' || cell === 'water') return false;
+      return true;
+    }
+
+    // Execute commands step by step
+    function executeCommands() {
+      if (isExecuting || gameStatus !== 'playing' || commands.length === 0) return;
+
+      isExecuting = true;
+      executionIndex = 0;
+      runNextCommand();
+      updateButtons();
+    }
+
+    function runNextCommand() {
+      if (executionIndex >= commands.length) {
+        // Einde van de commands
+        isExecuting = false;
+        checkGoal();
+        updateButtons();
+        return;
+      }
+
+      // Mark command as executed
+      commands[executionIndex].executed = true;
+      renderCommands();
+
+      // Bereken nieuwe positie
+      const cmd = commands[executionIndex];
+      let newPos = { ...playerPosition };
+      if (cmd.direction === 'up') newPos.row--;
+      else if (cmd.direction === 'right') newPos.col++;
+      else if (cmd.direction === 'down') newPos.row++;
+      else if (cmd.direction === 'left') newPos.col--;
+
+      if (isValidPosition(newPos)) {
+        playerPosition = newPos;
+        renderGrid();
+
+        // Check goal
+        const currentLevel = mazeLevels[level];
+        if (playerPosition.row === currentLevel.goal.row &&
+            playerPosition.col === currentLevel.goal.col) {
+          isExecuting = false;
+          gameStatus = 'won';
+          showFeedback('Gewonnen! 🎉', 'success');
+          btnNext.style.display = (level < mazeLevels.length - 1) ? 'inline-block' : 'none';
+          updateButtons();
+          return;
+        }
+
+        executionIndex++;
+        setTimeout(runNextCommand, 500);
+      } else {
+        isExecuting = false;
+        gameStatus = 'lost';
+        showFeedback('Oh nee! Je piraat kan daar niet naartoe! ❌', 'error');
+        updateButtons();
+      }
+    }
+
+    function checkGoal() {
+      const currentLevel = mazeLevels[level];
+      if (playerPosition.row === currentLevel.goal.row &&
+          playerPosition.col === currentLevel.goal.col) {
+        gameStatus = 'won';
+        showFeedback('Gewonnen! 🎉', 'success');
+        btnNext.style.display = (level < mazeLevels.length - 1) ? 'inline-block' : 'none';
+      } else {
+        gameStatus = 'lost';
+        showFeedback('Helaas niet bij de schat gekomen!', 'error');
+      }
+    }
+
+    function showFeedback(message, type) {
+      feedbackEl.textContent = message;
+      feedbackEl.className = type === 'success' ? 'success' : 'error';
+    }
+
+    function restartLevel() {
+      initGame();
+      showFeedback('', '');
+    }
+
+    function nextLevel() {
+      if (level < mazeLevels.length - 1) {
+        level++;
+        initGame();
+      }
+    }
+
+    function updateButtons() {
+      document.getElementById('btn-execute').disabled = isExecuting || commands.length === 0 || gameStatus !== 'playing';
+      document.getElementById('btn-clear').disabled = isExecuting || commands.length === 0 || gameStatus !== 'playing';
+      document.getElementById('btn-remove').disabled = isExecuting || commands.length === 0 || gameStatus !== 'playing';
+      document.getElementById('btn-restart').disabled = isExecuting;
+    }
+
+    // Event listeners
+    document.getElementById('btn-up').onclick = () => addCommand('up');
+    document.getElementById('btn-right').onclick = () => addCommand('right');
+    document.getElementById('btn-down').onclick = () => addCommand('down');
+    document.getElementById('btn-left').onclick = () => addCommand('left');
+
+    document.getElementById('btn-execute').onclick = () => executeCommands();
+    document.getElementById('btn-clear').onclick = () => clearCommands();
+    document.getElementById('btn-remove').onclick = () => removeLastCommand();
+    document.getElementById('btn-restart').onclick = () => restartLevel();
+    btnNext.onclick = () => nextLevel();
+
+    // Start de game
+    initGame();
+  </script>
+</body>
+</html>

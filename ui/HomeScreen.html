@@ -1,0 +1,45 @@
+<!-- HomeScreen.html -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pirateneiland – Home</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div id="gameScreen">
+    <div class="top-bar" id="topBar"></div>
+
+    <!-- Game Buttons -->
+    <button class="game-button" style="top: 70%; left: 70%;" onclick="goToGame('../games/Numbersgame.html')">Cijfers</button>
+    <button class="game-button" style="top: 30%; left: 75%;" onclick="goToGame('../games/Memorygame.html')">Memorie</button>
+    <button class="game-button" style="top: 45%; left: 45%;" onclick="goToGame('../games/Mazegame.html')">Doolhof</button>
+    <button class="game-button" style="top: 75%; left: 25%;" onclick="goToGame('../games/Puzzlegame.html')">Puzzels</button>
+    <button class="game-button" style="top: 50%; left: 75%;" onclick="goToGame('../games/Storygame.html')">Verhaal</button>
+
+    <!-- Voor Leerkrachten -->
+    <div class="teacher-button">
+      <button onclick="goToGame('teachersGuide.html')">📋 Voor Leerkrachten & Ouders</button>
+    </div>
+  </div>
+
+  <script>
+    // Ophalen en weergeven van de naam
+    window.onload = () => {
+      const name = localStorage.getItem('playerName');
+      const topBar = document.getElementById('topBar');
+      if (name) {
+        topBar.textContent = `🏴‍☠️ Welkom, ${name}!`;
+      } else {
+        // Geen naam ingevuld → terug naar naam-pagina
+        window.location.href = '../index.html';
+      }
+    };
+
+    function goToGame(url) {
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>

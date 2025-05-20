@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leerkrachten & Ouders Informatie</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fc;
+    color: #2c3e50;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgb(0 0 0 / 0.1);
+    padding: 2rem 3rem;
+  }
+  h1 {
+    color: #34495e;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  /* Tabs container */
+  .tabs {
+    display: flex;
+    border-bottom: 3px solid #2980b9;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  .tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+  .tab-button {
+    flex: none;
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #2980b9;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+  }
+  .tab-button:hover {
+    color: #1c5980;
+  }
+  .tab-button.active {
+    border-bottom-color: #2980b9;
+    color: #1c5980;
+  }
+  /* Tab content */
+  .tab-content {
+    padding-top: 1.5rem;
+  }
+  .tab-content[hidden] {
+    display: none;
+  }
+
+  /* Headings inside content */
+  h2 {
+    color: #21618c;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.7rem;
+    color: #2874a6;
+  }
+  h4 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #3498db;
+  }
+
+  /* Lists styling */
+  ul, ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+  ul {
+    list-style-type: disc;
+  }
+  ol {
+    list-style-type: decimal;
+  }
+
+  /* Section blocks */
+  .section-block {
+    border-left: 5px solid #2980b9;
+    padding-left: 1rem;
+    margin-bottom: 1.5rem;
+    background: #ecf6fc;
+    border-radius: 5px;
+  }
+
+  /* Buttons for download */
+  .download-btn {
+    background-color: #2980b9;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    margin-top: 0.7rem;
+  }
+  .download-btn:hover {
+    background-color: #1c5980;
+  }
+
+  /* Grid layout for werkbladen */
+  .grid-werkbladen {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .card {
+    background: #f9fbff;
+    border: 1px solid #d3d9e6;
+    padding: 1.25rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.05);
+  }
+  .card h3 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: #1b4f72;
+  }
+  .card p {
+    margin: 0.4rem 0 0.9rem 0;
+    font-size: 0.95rem;
+    color: #34495e;
+  }
+
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+  }
+  th, td {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+  }
+  th {
+    background-color: #2980b9;
+    color: white;
+    font-weight: 600;
+  }
+  tr:hover {
+    background-color: #f0f7ff;
+  }
+  td.center {
+    text-align: center;
+  }
+
+  /* Form inputs simulation (readonly) */
+  .input-line {
+    border-bottom: 2px dashed #7f8c8d;
+    height: 24px;
+    margin-top: 0.2rem;
+  }
+  label {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+    display: block;
+  }
+
+  /* Textarea style for observaties */
+  .textarea {
+    border: 2px dashed #7f8c8d;
+    border-radius: 6px;
+    min-height: 80px;
+    resize: vertical;
+    padding: 0.6rem;
+    background: #fff;
+    font-size: 0.9rem;
+    color: #34495e;
+  }
+  /* Centered download button for observatie */
+  .btn-center {
+    display: block;
+    margin: 1rem auto 0 auto;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 600px) {
+    .container {
+      padding: 1rem 1.5rem;
+    }
+    .tab-button {
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-label="Leerkrachten en Ouders informatie">
+
+  <h1>Leerkrachten &amp; Ouders Informatie</h1>
+
+  <nav class="tabs" role="tablist" aria-label="Tabbladen menu">
+    <button class="tab-button active" role="tab" aria-selected="true" aria-controls="handleiding" id="tab-handleiding-btn" tabindex="0" data-tab="handleiding">Handleiding</button>
+    <button class="tab-button" role="tab" aria-selected="false" aria-controls="didactisch" id="tab-didactisch-btn" tabindex="-1" data-tab="didactisch">Didactische Verantwoording</button>
+    <button class="tab-button" role="tab" aria-selected="false" aria-controls="variaties" id="tab-variaties-btn" tabindex="-1" data-tab="variaties">Spelvariaties</button>
+    <button class="tab-button" role="tab" aria-selected="false" aria-controls="werkbladen" id="tab-werkbladen-btn" tabindex="-1" data-tab="werkbladen">Werkbladen</button>
+    <button class="tab-button" role="tab" aria-selected="false" aria-controls="observatie" id="tab-observatie-btn" tabindex="-1" data-tab="observatie">Observatieformulier</button>
+    <button class="tab-button" role="tab" aria-selected="false" aria-controls="leerdoelen" id="tab-leerdoelen-btn" tabindex="-1" data-tab="leerdoelen">Leerdoelen</button>
+  </nav>
+
+  <section id="handleiding" class="tab-content" role="tabpanel" aria-labelledby="tab-handleiding-btn">
+    <h2>Handleiding Pirateneiland Avontuur</h2>
+    <h3>Over dit spel</h3>
+    <p>
+      Pirateneiland Avontuur is een educatief spel voor kinderen in de derde kleuterklas of het eerste leerjaar.
+      Het spel bevat verschillende mini-games die op een speelse manier reken- en taalvaardigheden helpen ontwikkelen.
+    </p>
+
+    <h3>Gebruik in de klas</h3>
+    <ul>
+      <li>Het spel kan worden gebruikt op een iPad of op het digitale schoolbord.</li>
+      <li>Ideaal voor gebruik tijdens de speeltijd, als beloning, of als onderdeel van een lesactiviteit.</li>
+      <li>Voorzie kinderen van duidelijke instructies en begeleid waar nodig.</li>
+    </ul>
+    
+    <h3>Benodigdheden</h3>
+    <ul>
+      <li>iPad, tablet of computer met internettoegang.</li>
+      <li>Eventueel een kopie van de werkbladen die bij het spel horen.</li>
+      <li>Schrijf- en tekengerei voor de werkbladen.</li>
+    </ul>
+  </section>
+
+  <section id="didactisch" class="tab-content" role="tabpanel" aria-labelledby="tab-didactisch-btn" hidden>
+    <h2>Didactische Verantwoording</h2>
+    <p>
+      Het Pirateneiland Avontuur stimuleert de ontwikkeling van taal- en rekenvaardigheden door spelenderwijs te leren.
+      De interactieve mini-games zijn gericht op het verbeteren van:
+    </p>
+    <ul>
+      <li>Herkennen van cijfers en letters.</li>
+      <li>Basisvaardigheden in tellen en woordenschat.</li>
+      <li>Probleemoplossend denken en samenwerking.</li>
+    </ul>
+    <p>
+      Door de speelse aanpak blijven kinderen betrokken en gemotiveerd. Dit draagt bij aan een positieve leerervaring en betere leerresultaten.
+    </p>
+  </section>
+
+  <section id="variaties" class="tab-content" role="tabpanel" aria-labelledby="tab-variaties-btn" hidden>
+    <h2>Spelvariaties</h2>
+    <p>Om het spel aan te passen aan verschillende niveaus en interesses, kunnen onderstaande variaties worden toegepast:</p>
+    <ul>
+      <li><strong>Voor beginners:</strong> Verminder de tijdslimiet en focus op herkenning van kleuren en vormen.</li>
+      <li><strong>Voor gevorderden:</strong> Voeg extra opdrachten toe die het tellen en lezen stimuleren.</li>
+      <li><strong>Groepsspel:</strong> Laat kinderen in teams samenwerken om de opdrachten sneller te voltooien.</li>
+      <li><strong>Competitie:</strong> Organiseer een kleine competitie met een scorebord.</li>
+    </ul>
+  </section>
+
+  <section id="werkbladen" class="tab-content" role="tabpanel" aria-labelledby="tab-werkbladen-btn" hidden>
+    <h2>Werkbladen</h2>
+    <div class="grid-werkbladen">
+      <div class="card">
+        <h3>Werkblad 1</h3>
+        <p>Oefeningen rondom kleuren en vormen.</p>
+        <button class="download-btn" aria-label="Download Werkblad 1">Download</button>
+      </div>
+      <div class="card">
+        <h3>Werkblad 2</h3>
+        <p>Tellen van piraten en schatkisten.</p>
+        <button class="download-btn" aria-label="Download Werkblad 2">Download</button>
+      </div>
+      <div class="card">
+        <h3>Werkblad 3</h3>
+        <p>Woorden herkennen en schrijven.</p>
+        <button class="download-btn" aria-label="Download Werkblad 3">Download</button>
+      </div>
+      <div class="card">
+        <h3>Werkblad 4</h3>
+        <p>Rekenopdrachten rondom piraten en schatten.</p>
+        <button class="download-btn" aria-label="Download Werkblad 4">Download</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="observatie" class="tab-content" role="tabpanel" aria-labelledby="tab-observatie-btn" hidden>
+    <h2>Observatieformulier</h2>
+    <p>
+      Gebruik dit formulier om de voortgang en het gedrag van de kinderen tijdens het spel te observeren.
+    </p>
+    <form aria-label="Observatieformulier">
+      <label for="naam">Naam kind:</label>
+      <input type="text" id="naam" name="naam" placeholder="Naam invullen" style="width:100%;padding:0.4rem;margin-bottom:1rem;border:1px solid #ccc;border-radius:5px;" />
+
+      <label for="datum">Datum observatie:</label>
+      <input type="date" id="datum" name="datum" style="width:100%;padding:0.4rem;margin-bottom:1rem;border:1px solid #ccc;border-radius:5px;" />
+
+      <label for="opmerkingen">Opmerkingen:</label>
+      <textarea id="opmerkingen" name="opmerkingen" class="textarea" placeholder="Voer hier observaties in..."></textarea>
+
+      <button type="submit" class="download-btn btn-center">Opslaan</button>
+    </form>
+  </section>
+
+  <section id="leerdoelen" class="tab-content" role="tabpanel" aria-labelledby="tab-leerdoelen-btn" hidden>
+    <h2>Leerdoelen</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Vak</th>
+          <th>Leerdoel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Taal</td>
+          <td>Begrijpend lezen en woordenschat uitbreiden.</td>
+        </tr>
+        <tr>
+          <td>Rekenen</td>
+          <td>Getalbegrip ontwikkelen en basisbewerkingen oefenen.</td>
+        </tr>
+        <tr>
+          <td>Sociaal-emotioneel</td>
+          <td>Samenwerken en probleemoplossend denken stimuleren.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<script>
+  // Tab switching logic
+  const tabs = document.querySelectorAll('.tab-button');
+  const panels = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Deselect all tabs
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+      });
+      // Hide all panels
+      panels.forEach(panel => panel.hidden = true);
+
+      // Select clicked tab
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      tab.setAttribute('tabindex', '0');
+
+      // Show related panel
+      const targetId = tab.dataset.tab;
+      document.getElementById(targetId).hidden = false;
+
+      tab.focus();
+    });
+  });
+
+  // Keyboard navigation for tabs (left/right arrows)
+  document.querySelector('.tabs').addEventListener('keydown', e => {
+    const activeIndex = [...tabs].findIndex(tab => tab.classList.contains('active'));
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const nextIndex = (activeIndex + 1) % tabs.length;
+      tabs[nextIndex].click();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prevIndex = (activeIndex - 1 + tabs.length) % tabs.length;
+      tabs[prevIndex].click();
+    }
+  });
+</script>
+
+</body>
+</html>

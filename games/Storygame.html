@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Piratenverhaal</title>
+  <style>
+    /* --- CSS styles --- */
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a3f66, #f3c13a);
+      color: #1a3f66;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255 255 255 / 0.9);
+      border-radius: 12px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .segment-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .stars {
+      color: #f3c13a;
+      font-size: 1.25rem;
+      user-select: none;
+    }
+
+    .story-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .image-wrapper {
+      flex: 1 1 300px;
+      max-width: 300px;
+      border: 4px solid #1a3f66;
+      border-radius: 12px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .image-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .text-wrapper {
+      flex: 1 1 350px;
+      background: #f3f3f5;
+      border: 2px solid #1a3f66;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .button-primary {
+      background: #1a3f66;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .button-primary:hover:not(:disabled) {
+      background: #f3c13a;
+      color: #1a3f66;
+    }
+
+    .button-primary:disabled {
+      background: #a0a0a0;
+      cursor: not-allowed;
+    }
+
+    .question-wrapper {
+      background: #f3f3f5;
+      border: 2px solid #1a3f66;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .question-wrapper h2 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1.2rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-button {
+      background: white;
+      border: 2px solid #1a3f66;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .option-button:hover:not(:disabled) {
+      border-color: #f3c13a;
+      background: #f3c13a22;
+    }
+
+    .option-button.correct {
+      background: #d4f3d4;
+      border-color: #2f8f2f;
+      color: #2f8f2f;
+      cursor: default;
+    }
+
+    .option-button.incorrect {
+      background: #f3d4d4;
+      border-color: #8f2f2f;
+      color: #8f2f2f;
+      cursor: default;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-align: center;
+      user-select: none;
+    }
+
+    .feedback.correct {
+      background: #d4f3d4;
+      color: #2f8f2f;
+    }
+
+    .feedback.incorrect {
+      background: #f3d4d4;
+      color: #8f2f2f;
+    }
+
+    .feedback.info {
+      background: #cce5ff;
+      color: #004085;
+    }
+
+    .feedback small {
+      display: block;
+      margin-top: 0.5rem;
+      font-weight: normal;
+      color: #555;
+    }
+
+    .footer-buttons {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .success-screen {
+      text-align: center;
+    }
+
+    .success-screen h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .star-reward {
+      font-size: 2rem;
+      color: #f3c13a;
+      margin: 1rem 0;
+      user-select: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 720px) {
+      .story-content {
+        flex-direction: column;
+      }
+      .image-wrapper, .text-wrapper {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <h1>Piratenverhaal</h1>
+
+  <!-- Content will be injected here by JS -->
+
+</div>
+
+<script>
+  // --- JavaScript for the story game ---
+
+  const pirateStory = [
+    {
+      text: "Het is een rustige dag in het vissersdorp. De zon schijnt en de vogels fluiten. Maar in de verte, op zee, verschijnt een groot schip met een zwarte vlag. Kapitein Beer kijkt door zijn verrekijker en schrikt. 'Piraten!' roept hij.",
+      image: "../images/personen2.jpg",
+      question: "Wat ziet Kapitein Beer in de verte?",
+      options: [
+        "Een walvis",
+        "Een groot schip met een zwarte vlag",
+        "Een vriend op een boot",
+        "Een storm die eraan komt"
+      ],
+      correctOption: 1
+    },
+    {
+      text: "De piraten komen steeds dichterbij. Ze hebben zwaarden en papegaaien. Hun kapitein heeft een grote zwarte hoed met veren. 'Iedereen moet zich verstoppen!' zegt Kapitein Beer tegen de dorpelingen. Alle kinderen rennen naar huis.",
+      image: "../images/schip.jpg",
+      question: "Wat moeten de dorpelingen doen volgens Kapitein Beer?",
+      options: [
+        "Dansen en zingen",
+        "Naar het strand gaan",
+        "Zich verstoppen",
+        "Een feest voorbereiden"
+      ],
+      correctOption: 2
+    },
+    {
+      text: "Maar kleine Sanne is niet bang voor piraten. Ze heeft juist veel spannende verhalen over piraten gehoord. Ze verstopt zich niet, maar blijft op het strand staan kijken. De piraten komen aan land en zien Sanne staan.",
+      image: "../images/schat.jpg",
+      question: "Wat doet Sanne terwijl iedereen zich verstopt?",
+      options: [
+        "Ze verstopt zich in een boom",
+        "Ze rent naar huis",
+        "Ze blijft op het strand staan kijken",
+        "Ze gaat vissen"
+      ],
+      correctOption: 2
+    },
+    {
+      text: "De piratenkapitein komt naar Sanne toe. Hij heeft een grote schatkaart in zijn hand. 'Wij kunnen de schat niet vinden,' zegt hij. 'Kun jij ons helpen?' Sanne kijkt naar de kaart. Het lijkt op een puzzel. De kaart wijst naar een plek in het dorp.",
+      image: "../images/personen.jpg",
+      question: "Wat vraagt de piratenkapitein aan Sanne?",
+      options: [
+        "Of ze met hem mee wil gaan",
+        "Of ze hem kan helpen de schat te vinden",
+        "Of ze een feest wil organiseren",
+        "Of ze kan zwemmen"
+      ],
+      correctOption: 1
+    },
+    {
+      text: "Sanne leidt de piraten naar de plek op de kaart. Het is bij de grote eikenboom bij het dorpsplein. 'Hier moet het zijn!' zegt Sanne. De piraten beginnen te graven. En ja hoor, ze vinden een oude schatkist! Maar als ze de kist openen, zit er geen goud in.",
+      image: "../images/personen2.jpg",
+      question: "Wat vinden de piraten bij de eikenboom?",
+      options: [
+        "Een schatkist",
+        "Een boot",
+        "Een zwaard",
+        "Niets"
+      ],
+      correctOption: 0
+    }
+  ];
+
+  const app = document.getElementById('app');
+
+  // State
+  let currentSegment = 0;
+  let selectedOption = null;
+  let showQuestion = false;
+  let feedback = null;
+  let correctAnswers = 0;
+  let hasAwardedPoints = false;
+  const maxLevel = pirateStory.length;
+
+  // Helper: render stars as ★
+  function renderStars(count, max) {
+    let stars = '';
+    for (let i = 0; i < max; i++) {
+      stars += i < count ? '★' : '☆';
+    }
+    return stars;
+  }
+
+  function resetState() {
+    selectedOption = null;
+    showQuestion = false;
+    feedback = null;
+  }
+
+  function render() {
+    app.innerHTML = '';
+
+    // If success screen
+    if (hasAwardedPoints) {
+      const starsCount = Math.ceil((correctAnswers / maxLevel) * 5);
+
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success-screen';
+
+      successDiv.innerHTML = `
+        <h2>Het verhaal is klaar!</h2>
+        <p>Goed gedaan! Je hebt het verhaal voltooid.</p>
+        <div class="star-reward">${renderStars(starsCount, 5)}</div>
+        <p>Je hebt ${starsCount} sterren verdiend!</p>
+        <p>Je had ${correctAnswers} van de ${maxLevel} vragen goed!</p>
+        <div class="footer-buttons">
+          <button class="button-primary" id="btn-back">Terug naar beginscherm</button>
+          <button class="button-primary" id="btn-restart">Verhaal opnieuw</button>
+        </div>
+      `;
+
+      app.appendChild(successDiv);
+
+      document.getElementById('btn-back').onclick = () => {
+        alert('Terug naar beginscherm (function kan je aanpassen)');
+      };
+      document.getElementById('btn-restart').onclick = () => {
+        currentSegment = 0;
+        correctAnswers = 0;
+        hasAwardedPoints = false;
+        resetState();
+        render();
+      };
+
+      return;
+    }
+
+    // Show current segment
+    const segment = pirateStory[currentSegment];
+
+    const segmentInfo = document.createElement('div');
+    segmentInfo.className = 'segment-info';
+    segmentInfo.innerHTML = `
+      <div>Deel ${currentSegment + 1} van ${maxLevel}</div>
+      <div>Goede antwoorden: ${correctAnswers}</div>
+      <div class="stars">${renderStars(Math.ceil((correctAnswers / maxLevel) * 5), 5)}</div>
+    `;
+
+    const storyContent = document.createElement('div');
+    storyContent.className = 'story-content';
+
+    const imageWrapper = document.createElement('div');
+    imageWrapper.className = 'image-wrapper';
+    const img = document.createElement('img');
+    img.src = segment.image;
+    img.alt = 'Pirate story illustration';
+    imageWrapper.appendChild(img);
+
+    const textWrapper = document.createElement('div');
+    textWrapper.className = 'text-wrapper';
+    textWrapper.textContent = segment.text;
+
+    storyContent.appendChild(imageWrapper);
+    storyContent.appendChild(textWrapper);
+
+    app.appendChild(segmentInfo);
+    app.appendChild(storyContent);
+
+    if (!showQuestion) {
+      const btn = document.createElement('button');
+      btn.className = 'button-primary';
+      btn.textContent = 'Ga verder ►';
+      btn.onclick = () => {
+        showQuestion = true;
+        render();
+      };
+      app.appendChild(btn);
+    } else {
+      const questionWrapper = document.createElement('div');
+      questionWrapper.className = 'question-wrapper';
+
+      const qTitle = document.createElement('h2');
+      qTitle.textContent = segment.question;
+      questionWrapper.appendChild(qTitle);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+
+      segment.options.forEach((opt, index) => {
+  const optionBtn = document.createElement('button');
+  optionBtn.className = 'option-button';
+  optionBtn.textContent = `${index + 1}. ${opt}`;
+
+  // Alleen markeren als correct wanneer geselecteerd en juist
+  if (selectedOption === index && selectedOption === segment.correctOption) {
+    optionBtn.classList.add('correct');
+    optionBtn.disabled = true;
+  }
+
+  // Markeren als fout wanneer geselecteerd en onjuist
+  if (selectedOption === index && selectedOption !== segment.correctOption) {
+    optionBtn.classList.add('incorrect');
+  }
+
+  // Disable knop alleen als juist antwoord is gegeven
+  if (feedback && selectedOption === segment.correctOption) {
+    optionBtn.disabled = true;
+  }
+
+  optionBtn.onclick = () => {
+    if (feedback && selectedOption === segment.correctOption) return; // Stop als het al goed was
+
+    selectedOption = index;
+
+    if (index === segment.correctOption) {
+      feedback = 'Goed zo! Dat is het juiste antwoord.';
+      correctAnswers++;
+
+      setTimeout(() => {
+        if (currentSegment === maxLevel - 1) {
+          hasAwardedPoints = true;
+        } else {
+          feedback = null;
+          selectedOption = null;
+          showQuestion = false;
+          currentSegment++;
+        }
+        render();
+      }, 2000);
+    } else {
+      feedback = 'Helaas, dat is niet correct. Probeer nog eens.';
+    }
+
+    render();
+  };
+
+  optionsDiv.appendChild(optionBtn);
+});
+
+      questionWrapper.appendChild(optionsDiv);
+
+      if (feedback) {
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback';
+        if (feedback.startsWith('Goed')) {
+          feedbackDiv.classList.add('correct');
+        } else if (feedback.startsWith('Helaas')) {
+          feedbackDiv.classList.add('incorrect');
+        } else {
+          feedbackDiv.classList.add('info');
+        }
+        feedbackDiv.innerHTML = `${feedback}`;
+        questionWrapper.appendChild(feedbackDiv);
+      }
+
+      app.appendChild(questionWrapper);
+    }
+  }
+
+  render();
+
+</script>
+
+</body>
+</html>

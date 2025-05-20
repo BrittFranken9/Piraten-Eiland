@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cijfers Leren - Pirate Game</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f0e68c, #add8e6);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 480px;
+    margin: 2rem auto;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #004d00;
+  }
+  .progress-bar {
+    background: #d3d3d3;
+    border-radius: 10px;
+    height: 16px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .progress {
+    background: #3b82f6;
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  .stars {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .stars span {
+    font-size: 1.5rem;
+    color: gold;
+  }
+  .dots {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 8px;
+  }
+  .dot {
+    width: 28px;
+    height: 28px;
+    background-color: #f97316;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  button.option-btn {
+    font-size: 2rem;
+    padding: 1rem;
+    border: 3px solid #2563eb;
+    border-radius: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  button.option-btn:hover {
+    background-color: #e0e7ff;
+  }
+  button.correct {
+    background-color: #22c55e;
+    color: white;
+    animation: bounce 0.5s ease infinite alternate;
+  }
+  button.incorrect {
+    background-color: #ef4444;
+    color: white;
+    animation: shake 0.5s ease;
+  }
+  @keyframes bounce {
+    0% {transform: translateY(0);}
+    100% {transform: translateY(-10px);}
+  }
+  @keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    25% {transform: translateX(-5px);}
+    75% {transform: translateX(5px);}
+  }
+  .feedback {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+  }
+  .feedback.correct {
+    background-color: #dcfce7;
+    color: #22c55e;
+  }
+  .feedback.incorrect {
+    background-color: #fee2e2;
+    color: #ef4444;
+  }
+  .hint {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    text-align: center;
+  }
+  .trace-box {
+    position: relative;
+    margin: 1rem auto 1.5rem;
+    background-color: white;
+    border: 3px solid #2563eb;
+    border-radius: 20px;
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    user-select: none;
+  }
+  .trace-number {
+    font-size: 150px;
+    color: #d1d5db;
+    text-align: center;
+    line-height: 200px;
+    user-select: none;
+  }
+  .trace-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    cursor: pointer;
+  }
+  .btn-primary, .btn-accent {
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    margin: 0.5rem;
+  }
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+  }
+  .btn-accent {
+    background-color: #f97316;
+    color: white;
+  }
+  .btn-primary:hover {
+    background-color: #1e40af;
+  }
+  .btn-accent:hover {
+    background-color: #c2410c;
+  }
+  .success-screen {
+    text-align: center;
+  }
+  .success-screen h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #16a34a;
+  }
+  .treasure {
+    font-size: 6rem;
+    margin: 1rem 0;
+  }
+</style>
+</head>
+<body>
+  <div class="container" id="game-container">
+    <h1>Cijfers Leren</h1>
+    <div id="level-info"></div>
+    <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
+    <div class="stars" id="stars-container"></div>
+    <div id="game-content"></div>
+    <div id="feedback" class="feedback" style="display:none;"></div>
+    <div id="hint" class="hint" style="display:none;"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+<script>
+  (function() {
+    // Game Data from your React levels, simplified and adapted
+    const gameLevels = [
+      { type: 'counting', number: 3, options: [1,3,5,7], question: 'Hoeveel schatten tel je?', imageCount: {3: 3} },
+      { type: 'counting', number: 1, options: [1,3,5,7], question: 'Hoeveel schatten tel je?', imageCount: {1: 1} },
+      { type: 'counting', number: 7, options: [1,3,5,7], question: 'Hoeveel schatten tel je?', imageCount: {7: 7} },
+      { type: 'counting', number: 4, options: [2,3,4,5], question: 'Hoeveel schatten tel je?', imageCount: {4: 4} },
+      { type: 'counting', number: 6, options: [4,5,6,7], question: 'Hoeveel gouden munten tel je?', imageCount: {6: 6} },
+      { type: 'findAmount', number: 5, question: 'Waar tel je 5 krabben?', imageCount: {3:3, 5:5, 4:4, 7:7} },
+      { type: 'counting', number: 8, options: [6,7,8,9], question: 'Hoeveel papegaaien tel je?', imageCount: {8:8} },
+      { type: 'findAmount', number: 6, question: 'Waar tel je 6 schelpen?', imageCount: {6:6,9:9,7:7,10:10} }
+    ];
+
+    const feedbackTexts = {
+      correct: "Goed zo! Dat is het juiste antwoord.",
+      incorrect: "Helaas, probeer het nog eens.",
+      next: "Goed! We gaan door naar het volgende niveau.",
+      completed: "Je hebt alle niveaus succesvol afgerond!"
+    };
+
+    const maxLevel = gameLevels.length;
+    let currentLevel = 0;
+    let attempts = 0;
+    let currentScore = 0;
+    let hasAwardedPoints = false;
+    let selectedAnswer = null;
+
+    // DOM refs
+    const levelInfoEl = document.getElementById('level-info');
+    const progressBarEl = document.getElementById('progress-bar');
+    const starsContainer = document.getElementById('stars-container');
+    const gameContentEl = document.getElementById('game-content');
+    const feedbackEl = document.getElementById('feedback');
+    const hintEl = document.getElementById('hint');
+    const actionsEl = document.getElementById('actions');
+
+    // Helpers for images (using emoji placeholders)
+    function getObjectImage(question) {
+      if (!question) return '📦';
+      if (question.includes('schat')) return '🧰'; // Treasure chest replaced with box emoji
+      if (question.includes('munt')) return '🪙';
+      if (question.includes('krab')) return '🦀';
+      if (question.includes('papegaai')) return '🦜';
+      if (question.includes('schelp')) return '🐚';
+      return '📦';
+    }
+
+    // Update progress bar and stars
+    function updateProgress() {
+      const progressPercent = ((currentLevel) / maxLevel) * 100;
+      progressBarEl.style.width = progressPercent + '%';
+
+      starsContainer.innerHTML = '';
+      for(let i=0; i < 5; i++) {
+        const star = document.createElement('span');
+        star.textContent = i < currentScore ? '★' : '☆';
+        starsContainer.appendChild(star);
+      }
+
+      levelInfoEl.textContent = `Niveau ${currentLevel + 1} van ${maxLevel}`;
+    }
+
+    // Show feedback message
+    function showFeedback(type) {
+      feedbackEl.textContent = feedbackTexts[type] || '';
+      feedbackEl.className = `feedback ${type}`;
+      feedbackEl.style.display = 'block';
+    }
+
+    // Hide feedback
+    function clearFeedback() {
+      feedbackEl.style.display = 'none';
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'feedback';
+    }
+
+    // Show hint message
+    function showHint(text) {
+      hintEl.textContent = text;
+      hintEl.style.display = 'block';
+    }
+
+    // Hide hint
+    function hideHint() {
+      hintEl.style.display = 'none';
+      hintEl.textContent = '';
+    }
+
+    // Clear selected answer styles
+    function clearSelectedStyles() {
+      const buttons = gameContentEl.querySelectorAll('button.option-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('correct', 'incorrect');
+      });
+    }
+
+    // Render current level content
+    function renderLevel() {
+      clearFeedback();
+      hideHint();
+      clearSelectedStyles();
+      selectedAnswer = null;
+      attempts = 0;
+
+      updateProgress();
+
+      const level = gameLevels[currentLevel];
+      gameContentEl.innerHTML = '';
+      actionsEl.innerHTML = '';
+
+      // Audio simulation: display question text only
+      const questionP = document.createElement('p');
+      questionP.textContent = level.question || '';
+      questionP.style.fontWeight = 'bold';
+      questionP.style.marginBottom = '1rem';
+      gameContentEl.appendChild(questionP);
+
+      switch(level.type) {
+        case 'recognition':
+          // Show dots representing the number
+          const dotsDiv = document.createElement('div');
+          dotsDiv.className = 'dots';
+          for(let i=0; i<level.number; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dotsDiv.appendChild(dot);
+          }
+          gameContentEl.appendChild(dotsDiv);
+
+          // Options buttons
+          const grid = document.createElement('div');
+          grid.className = 'options-grid';
+          level.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.addEventListener('click', () => handleAnswer(opt, btn));
+            grid.appendChild(btn);
+          });
+          gameContentEl.appendChild(grid);
+          break;
+
+        case 'tracing':
+          // Show big faded number
+          const traceBox = document.createElement('div');
+          traceBox.className = 'trace-box';
+
+          const traceNum = document.createElement('div');
+          traceNum.className = 'trace-number';
+          traceNum.textContent = level.number;
+          traceBox.appendChild(traceNum);
+
+          // Transparent overlay for "tracing"
+          const overlay = document.createElement('div');
+          overlay.className = 'trace-overlay';
+          overlay.title = 'Klik hier om te bevestigen dat je getraceerd hebt';
+          overlay.addEventListener('click', () => {
+            handleAnswer(level.number);
+          });
+          traceBox.appendChild(overlay);
+
+          gameContentEl.appendChild(traceBox);
+
+          // Button to confirm tracing done
+          const btnDone = document.createElement('button');
+          btnDone.className = 'btn-primary';
+          btnDone.textContent = 'Klaar met schrijven!';
+          btnDone.addEventListener('click', () => handleAnswer(level.number));
+          actionsEl.appendChild(btnDone);
+          break;
+
+        case 'counting':
+          // Show objects to count
+          const countGrid = document.createElement('div');
+          countGrid.className = 'dots';
+          const countNum = level.imageCount ? level.imageCount[level.number] : level.number;
+          for(let i=0; i < countNum; i++) {
+            const span = document.createElement('span');
+            span.style.fontSize = '2rem';
+            span.textContent = getObjectImage(level.question);
+            countGrid.appendChild(span);
+          }
+          gameContentEl.appendChild(countGrid);
+
+          // Options buttons
+          const countOptions = document.createElement('div');
+          countOptions.className = 'options-grid';
+          level.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.addEventListener('click', () => handleAnswer(opt, btn));
+            countOptions.appendChild(btn);
+          });
+          gameContentEl.appendChild(countOptions);
+          break;
+
+        case 'findAmount':
+          // Show multiple buttons with different counts of objects
+          const findGrid = document.createElement('div');
+          findGrid.className = 'options-grid';
+
+          // For simplicity, create buttons with different counts represented by emoji clusters
+          Object.entries(level.imageCount).forEach(([numStr, count]) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+
+            // Cluster of emojis (scaled)
+            let emojis = '';
+            for(let i=0; i < count; i++) {
+              emojis += getObjectImage(level.question);
+            }
+            btn.innerHTML = `<div style="font-size:2rem; line-height:1;">${emojis}</div>`;
+            btn.dataset.number = numStr;
+            btn.addEventListener('click', () => handleAnswer(Number(numStr), btn));
+            findGrid.appendChild(btn);
+          });
+          gameContentEl.appendChild(findGrid);
+          break;
+      }
+    }
+
+    // Handle answer selection and feedback
+    function handleAnswer(answer, btnEl=null) {
+      clearFeedback();
+      if (selectedAnswer !== null) return; // Prevent multiple clicks
+
+      const level = gameLevels[currentLevel];
+      const correctAnswer = level.number;
+
+      if (answer === correctAnswer) {
+        selectedAnswer = answer;
+        if (btnEl) btnEl.classList.add('correct');
+
+        if (!hasAwardedPoints) {
+          currentScore++;
+          hasAwardedPoints = true;
+        }
+
+        showFeedback('correct');
+        // After short delay move to next level or finish
+        setTimeout(() => {
+          currentLevel++;
+          hasAwardedPoints = false;
+
+          if (currentLevel >= maxLevel) {
+            showSuccessScreen();
+          } else {
+            renderLevel();
+          }
+        }, 2000);
+
+      } else {
+        attempts++;
+        if (btnEl) {
+          btnEl.classList.add('incorrect');
+          // Remove incorrect after animation ends
+          setTimeout(() => btnEl.classList.remove('incorrect'), 1000);
+        }
+        showFeedback('incorrect');
+        // No points for incorrect answers, player can try again
+      }
+    }
+
+    // Show final success screen
+    function showSuccessScreen() {
+      levelInfoEl.textContent = 'Gefeliciteerd!';
+      progressBarEl.style.width = '100%';
+      starsContainer.innerHTML = '★ ★ ★ ★ ★';
+
+      gameContentEl.innerHTML = `
+        <div class="success-screen">
+          <h2>Je hebt alle niveaus succesvol afgerond!</h2>
+          <div class="treasure">🎉🏴‍☠️🏆🎉</div>
+          <button id="restart-btn" class="btn-primary">Opnieuw spelen</button>
+        </div>
+      `;
+      actionsEl.innerHTML = '';
+
+      document.getElementById('restart-btn').addEventListener('click', () => {
+        currentLevel = 0;
+        currentScore = 0;
+        hasAwardedPoints = false;
+        renderLevel();
+      });
+    }
+
+    // Initialize game
+    renderLevel();
+
+  })();
+</script>
+</body>
+</html>

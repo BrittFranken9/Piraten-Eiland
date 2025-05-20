@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Piratenpuzzel</title>
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #83c5e6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1a3f66;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.container {
+  background: rgba(255 255 255 / 0.9);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.level-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.stars {
+  color: #f3c13a;
+  font-size: 20px;
+}
+
+.instructions {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.puzzle-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 4px solid #1a3f66;
+  border-radius: 12px;
+  background-color: #83c5e6;
+  display: grid;
+  gap: 2px;
+  user-select: none;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.puzzle-piece {
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 1px solid #83c5e6;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.puzzle-piece.selected {
+  border: 3px dashed #f3c13a;
+  box-shadow: 0 0 10px #f3c13a;
+  transform: scale(0.95);
+  z-index: 10;
+}
+
+.puzzle-piece.completed {
+  cursor: default;
+  filter: brightness(1);
+}
+
+.feedback {
+  text-align: center;
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.feedback.correct {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.feedback.incorrect {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.feedback.next {
+  background-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+button {
+  background-color: #1a3f66;
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0f2747;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Piratenpuzzels</h1>
+      <div class="level-info">
+        <p id="level-text">Niveau 1 van 10</p>
+        <p id="moves-text">Zetten: 0</p>
+        <div id="star-reward" class="stars"></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="instructions">
+        <h2 id="instruction-title">Bekijk goed deze afbeelding...</h2>
+        <p id="instruction-text">De puzzel wordt zo geschud!</p>
+      </section>
+
+      <section id="puzzle-container" class="puzzle-container">
+        <!-- Puzzelstukken komen hier -->
+      </section>
+
+      <div id="feedback" class="feedback"></div>
+
+      <div class="buttons">
+        <button id="back-button">Terug naar beginscherm</button>
+        <button id="restart-button" disabled>Opnieuw beginnen</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Image URLs (gebruik je eigen URL's of lokaal pad)
+const PirateImageAssets = {
+    treasureChest: '../images/schat.jpg',
+  pirateShip: '../images/schip.jpg',
+  pirateMap: '../images/personen.jpg',
+  pirateMaze: '../images/personen2.jpg',
+};
+
+const GameFeedback = {
+  correct: 'Goed gedaan! Puzzel opgelost.',
+  incorrect: 'Dat was niet correct, probeer opnieuw.',
+  next: 'Goed, door naar het volgende niveau!',
+  completed: 'Alle niveaus voltooid, gefeliciteerd!',
+};
+
+const puzzleLevels = [
+  { rows: 2, cols: 2, image: PirateImageAssets.treasureChest, name: "Schatkist" },
+  { rows: 2, cols: 2, image: PirateImageAssets.pirateShip, name: "Piratenschip" },
+  { rows: 2, cols: 3, image: PirateImageAssets.pirateMap, name: "Piratenkaart" },
+  { rows: 3, cols: 3, image: PirateImageAssets.pirateMaze, name: "Piratendoolhof" },
+];
+
+let currentLevel = 0;
+let puzzlePieces = [];
+let selectedPieceId = null;
+let isCompleted = false;
+let moves = 0;
+let currentScore = 0;
+
+const maxLevel = puzzleLevels.length;
+
+const levelText = document.getElementById('level-text');
+const movesText = document.getElementById('moves-text');
+const starReward = document.getElementById('star-reward');
+const instructionTitle = document.getElementById('instruction-title');
+const instructionText = document.getElementById('instruction-text');
+const puzzleContainer = document.getElementById('puzzle-container');
+const feedbackEl = document.getElementById('feedback');
+const backButton = document.getElementById('back-button');
+const restartButton = document.getElementById('restart-button');
+
+backButton.addEventListener('click', () => {
+  alert('Terug naar beginscherm - voeg hier je navigatie toe');
+});
+
+restartButton.addEventListener('click', () => {
+  initializePuzzle();
+});
+
+function initializePuzzle() {
+  moves = 0;
+  isCompleted = false;
+  selectedPieceId = null;
+  feedbackEl.textContent = '';
+  restartButton.disabled = true;
+  
+  updateLevelText();
+  updateMovesText();
+  updateStars(0);
+
+  const level = puzzleLevels[currentLevel];
+  const totalPieces = level.rows * level.cols;
+  puzzleContainer.style.gridTemplateColumns = `repeat(${level.cols}, 1fr)`;
+  puzzleContainer.style.gridTemplateRows = `repeat(${level.rows}, 1fr)`;
+
+  puzzlePieces = [];
+
+  for(let i = 0; i < totalPieces; i++) {
+    puzzlePieces.push({
+      id: i,
+      correctPosition: i,
+      currentPosition: i,
+      imageUrl: level.image
+    });
+  }
+
+  // Laat eerst het volledige plaatje 3 seconden zien
+  showFullImage(level);
+
+  setTimeout(() => {
+    shufflePieces();
+    renderPuzzle();
+    instructionTitle.textContent = `Maak de puzzel van de ${level.name}`;
+    instructionText.textContent = 'Klik op twee stukjes om ze te ruilen';
+    restartButton.disabled = false;
+  }, 3000);
+}
+
+function showFullImage(level) {
+  puzzleContainer.innerHTML = '';
+  puzzleContainer.style.display = 'block';
+  
+  const fullImage = document.createElement('div');
+  fullImage.style.backgroundImage = `url(${level.image})`;
+  fullImage.style.backgroundSize = 'cover';
+  fullImage.style.backgroundPosition = 'center';
+  fullImage.style.width = '100%';
+  fullImage.style.height = '100%';
+  puzzleContainer.appendChild(fullImage);
+  
+  instructionTitle.textContent = 'Bekijk goed deze afbeelding...';
+  instructionText.textContent = 'De puzzel wordt zo geschud!';
+}
+
+function shufflePieces() {
+  const positions = puzzlePieces.map(p => p.currentPosition);
+  
+  // Fisher-Yates shuffle
+  for(let i = positions.length -1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+
+  puzzlePieces.forEach((piece, idx) => {
+    piece.currentPosition = positions[idx];
+  });
+}
+
+function renderPuzzle() {
+  puzzleContainer.innerHTML = '';
+  puzzleContainer.style.display = 'grid';
+
+  const level = puzzleLevels[currentLevel];
+
+  // Sorteer op huidige positie zodat de grid klopt
+  const piecesInOrder = [...puzzlePieces].sort((a,b) => a.currentPosition - b.currentPosition);
+
+  piecesInOrder.forEach(piece => {
+    const pieceDiv = document.createElement('div');
+    pieceDiv.classList.add('puzzle-piece');
+    if(isCompleted) pieceDiv.classList.add('completed');
+    if(selectedPieceId === piece.id) pieceDiv.classList.add('selected');
+    
+    // Bereken background positie
+    const correctRow = Math.floor(piece.correctPosition / level.cols);
+    const correctCol = piece.correctPosition % level.cols;
+    
+    const bgPosX = (correctCol * 100) / (level.cols - 1);
+    const bgPosY = (correctRow * 100) / (level.rows - 1);
+
+    pieceDiv.style.backgroundImage = `url(${piece.imageUrl})`;
+    pieceDiv.style.backgroundSize = `${level.cols * 100}% ${level.rows * 100}%`;
+    pieceDiv.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+
+    pieceDiv.addEventListener('click', () => handleSelectPiece(piece.id));
+
+    puzzleContainer.appendChild(pieceDiv);
+  });
+}
+
+function handleSelectPiece(id) {
+  if (isCompleted) return;
+
+  if (selectedPieceId === null) {
+    selectedPieceId = id;
+    renderPuzzle();
+  } else {
+    if(selectedPieceId === id) {
+      // Deselect if same piece clicked twice
+      selectedPieceId = null;
+      renderPuzzle();
+      return;
+    }
+
+    // Swap currentPosition
+    const piece1 = puzzlePieces.find(p => p.id === selectedPieceId);
+    const piece2 = puzzlePieces.find(p => p.id === id);
+
+    const tempPos = piece1.currentPosition;
+    piece1.currentPosition = piece2.currentPosition;
+    piece2.currentPosition = tempPos;
+
+    moves++;
+    updateMovesText();
+
+    selectedPieceId = null;
+    renderPuzzle();
+
+    if (checkSolved()) {
+      handlePuzzleComplete();
+    }
+  }
+}
+
+function checkSolved() {
+  return puzzlePieces.every(piece => piece.currentPosition === piece.correctPosition);
+}
+
+function handlePuzzleComplete() {
+  isCompleted = true;
+  feedbackEl.textContent = GameFeedback.correct;
+  feedbackEl.className = 'feedback correct';
+  restartButton.disabled = true;
+
+  // Scoreberekening gelijk aan React code
+  const level = puzzleLevels[currentLevel];
+  const complexity = level.rows * level.cols;
+  const perfectMoves = complexity * 2;
+
+  let levelScore;
+  if (moves <= perfectMoves) levelScore = 5;
+  else if (moves <= perfectMoves * 1.5) levelScore = 4;
+  else if (moves <= perfectMoves * 2) levelScore = 3;
+  else if (moves <= perfectMoves * 3) levelScore = 2;
+  else levelScore = 1;
+
+  currentScore += levelScore;
+  updateStars(currentScore);
+
+  setTimeout(() => {
+    if(currentLevel === maxLevel - 1) {
+      feedbackEl.textContent = GameFeedback.completed;
+      restartButton.disabled = false;
+    } else {
+      feedbackEl.textContent = GameFeedback.next;
+      currentLevel++;
+      setTimeout(() => {
+        initializePuzzle();
+        feedbackEl.textContent = '';
+      }, 1500);
+    }
+  }, 1500);
+}
+
+function updateLevelText() {
+  levelText.textContent = `Niveau ${currentLevel + 1} van ${maxLevel}`;
+}
+
+function updateMovesText() {
+  movesText.textContent = `Zetten: ${moves}`;
+}
+
+function updateStars(score) {
+  // Max 5 sterren tonen
+  const starsCount = Math.min(score, 5);
+  starReward.textContent = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
+}
+
+// Start het spel
+initializePuzzle();
+
+  </script>
+</body>
+</html>

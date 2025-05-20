@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Piraten Memorie</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a3f66 0%, #2a4f76 100%);
+    color: #fff;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh;
+  }
+  header {
+    background: #f3c13a;
+    width: 100%; max-width: 640px;
+    padding: 1rem;
+    text-align: center;
+    color: #1a3f66;
+    font-weight: bold;
+    font-size: 1.8rem;
+    letter-spacing: 1.5px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  main {
+    background: rgba(255 255 255 / 0.9);
+    max-width: 640px;
+    width: 100%;
+    margin: 2rem 1rem 4rem;
+    padding: 1rem;
+    border-radius: 12px;
+    color: #1a3f66;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  .status {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .card {
+    background-color: #1a3f66;
+    border-radius: 8px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 3rem;
+    user-select: none;
+    transition: transform 0.3s ease;
+    position: relative;
+    color: transparent;
+    border: 2px solid #1a3f66;
+    perspective: 600px;
+  }
+  .card.flipped, .card.matched {
+    color: #f3c13a;
+    background: white;
+    border-color: #f3c13a;
+    cursor: default;
+  }
+  .card.matched {
+    opacity: 0.6;
+  }
+  .card.flipping {
+    pointer-events: none;
+  }
+  button {
+    background: #f3c13a;
+    border: none;
+    color: #1a3f66;
+    padding: 0.6rem 1.4rem;
+    margin: 0 0.5rem 0.5rem 0;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background: #d4a429;
+  }
+  button:disabled {
+    background: #ccc;
+    cursor: default;
+  }
+  .stars {
+    font-size: 1.8rem;
+    color: #f3c13a;
+    user-select: none;
+  }
+  .center {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  Piraten Memorie
+</header>
+
+<main>
+  <div class="status">
+    <div>Niveau: <span id="level">1</span></div>
+    <div>Zetten: <span id="moves">0</span></div>
+    <div class="stars" id="stars">⭐☆☆☆☆</div>
+  </div>
+
+  <div class="grid" id="game-grid">
+    <!-- Kaarten komen hier -->
+  </div>
+
+  <div class="center">
+    <button id="restart-btn">Opnieuw starten</button>
+    <button id="next-level-btn" disabled>Naar niveau 2</button>
+  </div>
+
+  <div class="center" id="message" style="margin-top: 1rem; font-weight: 600;"></div>
+</main>
+
+<script>
+(() => {
+  const pirateItems = [
+    { type: 'hat', name: 'Piratenhoed', emoji: '👒' },
+    { type: 'eyepatch', name: 'Ooglap', emoji: '🏴‍☠️' },
+    { type: 'sword', name: 'Zwaard', emoji: '⚔️' },
+    { type: 'cannon', name: 'Kanon', emoji: '💣' },
+    { type: 'pirate', name: 'Piraat', emoji: '🏴‍☠️' },
+    { type: 'ship', name: 'Piratenschip', emoji: '⛵' },
+    { type: 'parrot', name: 'Papegaai', emoji: '🦜' },
+    { type: 'treasure', name: 'Schatkist', emoji: '📦' },
+    { type: 'map', name: 'Schatkaart', emoji: '🗺️' },
+    { type: 'flag', name: 'Piratenvlag', emoji: '🏴‍☠️' },
+    { type: 'coins', name: 'Gouden munten', emoji: '🪙' },
+    { type: 'hook', name: 'Haak', emoji: '🪝' },
+    { type: 'boat', name: 'Roeiboot', emoji: '🚣' },
+    { type: 'telescope', name: 'Verrekijker', emoji: '🔭' },
+    { type: 'anchor', name: 'Anker', emoji: '⚓' }
+  ];
+
+  let level = 1;
+  const maxLevel = 8;
+
+  let cards = [];
+  let flippedIndexes = [];
+  let matchedPairs = 0;
+  let moves = 0;
+
+  const levelEl = document.getElementById('level');
+  const movesEl = document.getElementById('moves');
+  const starsEl = document.getElementById('stars');
+  const gridEl = document.getElementById('game-grid');
+  const restartBtn = document.getElementById('restart-btn');
+  const nextLevelBtn = document.getElementById('next-level-btn');
+  const messageEl = document.getElementById('message');
+
+  function generateCards(level) {
+    // aantal paren tussen 2 en 8, vergelijkbaar met React code
+    const numPairs = Math.min(Math.max(2, Math.floor(level / 1.5) + 1), 8);
+    const selectedItems = [...pirateItems].sort(() => Math.random() - 0.5).slice(0, numPairs);
+    const pairs = selectedItems.flatMap((item, index) => ([
+      { id: index * 2, type: item.type, name: item.name, emoji: item.emoji, flipped: false, matched: false },
+      { id: index * 2 + 1, type: item.type, name: item.name, emoji: item.emoji, flipped: false, matched: false }
+    ]));
+    return pairs.sort(() => Math.random() - 0.5);
+  }
+
+  function renderCards() {
+    gridEl.innerHTML = '';
+    cards.forEach((card, i) => {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card' + (card.flipped || card.matched ? ' flipped' : '');
+      cardEl.textContent = card.flipped || card.matched ? card.emoji : '🏴‍☠️';
+      if (card.matched) cardEl.classList.add('matched');
+      cardEl.addEventListener('click', () => onCardClick(i));
+      gridEl.appendChild(cardEl);
+    });
+  }
+
+  function updateStatus() {
+    levelEl.textContent = level;
+    movesEl.textContent = moves;
+    nextLevelBtn.textContent = `Naar niveau ${level + 1}`;
+    starsEl.textContent = calculateStars();
+  }
+
+  function calculateStars() {
+    // Max score 5, gebaseerd op efficiency
+    const perfectScore = cards.length; // aantal kaarten
+    const score = Math.max(1, Math.min(5, Math.ceil(perfectScore / Math.max(1, moves) * 5)));
+    return '⭐'.repeat(score) + '☆'.repeat(5 - score);
+  }
+
+  let isChecking = false;
+
+  function onCardClick(index) {
+    if (isChecking) return;
+    const card = cards[index];
+    if (card.flipped || card.matched) return;
+    if (flippedIndexes.length >= 2) return;
+
+    // flip card
+    card.flipped = true;
+    flippedIndexes.push(index);
+    renderCards();
+
+    if (flippedIndexes.length === 2) {
+      moves++;
+      updateStatus();
+      isChecking = true;
+
+      const [i1, i2] = flippedIndexes;
+      const card1 = cards[i1];
+      const card2 = cards[i2];
+
+      if (card1.type === card2.type) {
+        // Match
+        setTimeout(() => {
+          card1.matched = true;
+          card2.matched = true;
+          flippedIndexes = [];
+          matchedPairs++;
+          isChecking = false;
+          renderCards();
+          checkGameComplete();
+        }, 600);
+      } else {
+        // Geen match
+        setTimeout(() => {
+          card1.flipped = false;
+          card2.flipped = false;
+          flippedIndexes = [];
+          isChecking = false;
+          renderCards();
+        }, 1000);
+      }
+    }
+  }
+
+  function checkGameComplete() {
+    if (matchedPairs === cards.length / 2) {
+      messageEl.textContent = `Niveau ${level} voltooid in ${moves} zetten!`;
+      nextLevelBtn.disabled = level >= maxLevel;
+      restartBtn.disabled = false;
+    }
+  }
+
+  function startLevel(newLevel) {
+    level = newLevel;
+    cards = generateCards(level);
+    flippedIndexes = [];
+    matchedPairs = 0;
+    moves = 0;
+    messageEl.textContent = '';
+    nextLevelBtn.disabled = true;
+    restartBtn.disabled = false;
+    isChecking = false;
+    updateStatus();
+    renderCards();
+  }
+
+  restartBtn.addEventListener('click', () => {
+    startLevel(level);
+  });
+
+  nextLevelBtn.addEventListener('click', () => {
+    if (level < maxLevel) {
+      startLevel(level + 1);
+    }
+  });
+
+  // Start game
+  startLevel(level);
+
+})();
+</script>
+
+</body>
+</html>

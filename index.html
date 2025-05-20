@@ -1,0 +1,30 @@
+<!-- NameScreen.html -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pirateneiland – Naam</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="nameScreen" class="overlay">
+    <div class="name-box">
+      <h1>🏴‍☠️ Welkom bij Pirateneiland!</h1>
+      <p>Ahoy, piraat! Wat is je naam?</p>
+      <input type="text" id="nameInput" placeholder="Typ je naam hier..." />
+      <button onclick="submitName()">Start het avontuur!</button>
+    </div>
+  </div>
+
+  <script>
+    function submitName() {
+      const input = document.getElementById('nameInput').value.trim();
+      if (input) {
+        localStorage.setItem('playerName', input);
+        window.location.href = 'ui/HomeScreen.html';
+      }
+    }
+  </script>
+</body>
+</html>
