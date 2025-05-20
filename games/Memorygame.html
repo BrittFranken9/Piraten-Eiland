@@ -4,27 +4,41 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Piraten Memorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a3f66 0%, #2a4f76 100%);
+    font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
     color: #fff;
     margin: 0; padding: 0;
     display: flex; flex-direction: column; align-items: center;
-    min-height: 100vh;
   }
-  header {
-    background: #f3c13a;
-    width: 100%; max-width: 640px;
-    padding: 1rem;
-    text-align: center;
-    color: #1a3f66;
-    font-weight: bold;
-    font-size: 1.8rem;
-    letter-spacing: 1.5px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+
+header {
+  background-image: url('../images/Perkament.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  width: 100%; max-width: 640px;
+  padding: 1rem;
+  min-height: 120px;
+  text-align: center;
+  color: #464C50;
+  font-weight: bold;
+  font-size: 3rem;
+  letter-spacing: 1.5px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.title {
+  padding-top: 7%;
   }
+
   main {
     background: rgba(255 255 255 / 0.9);
     max-width: 640px;
@@ -33,22 +47,25 @@
     padding: 1rem;
     border-radius: 12px;
     color: #1a3f66;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    font-size: 2rem;
   }
   .status {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: 3rem;
     font-weight: 600;
+    font-size: 2rem;
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
   }
   .card {
-    background-color: #1a3f66;
+    background-image: url('../images/hout.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
     border-radius: 8px;
     height: 80px;
     display: flex;
@@ -76,27 +93,28 @@
     pointer-events: none;
   }
   button {
-    background: #f3c13a;
+    background: #464C50;
     border: none;
-    color: #1a3f66;
+    color: #E2DBAF;
     padding: 0.6rem 1.4rem;
     margin: 0 0.5rem 0.5rem 0;
-    font-weight: bold;
+    font-weight: regular;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.3s ease;
   }
   button:hover:not(:disabled) {
-    background: #d4a429;
+    background: #464C50;
   }
   button:disabled {
-    background: #ccc;
+    background: #E8E6DA;
+    color: #464C50;
     cursor: default;
   }
   .stars {
     font-size: 1.8rem;
-    color: #f3c13a;
+    color: #D25D10;
     user-select: none;
   }
   .center {
@@ -107,7 +125,7 @@
 </head>
 <body>
 
-<header>
+<header class="title">
   Piraten Memorie
 </header>
 
@@ -123,32 +141,33 @@
   </div>
 
   <div class="center">
+    <a href="../ui/HomeScreen.html"><button id="back-button">Terug naar schatkaart</button></a>
     <button id="restart-btn">Opnieuw starten</button>
     <button id="next-level-btn" disabled>Naar niveau 2</button>
   </div>
 
   <div class="center" id="message" style="margin-top: 1rem; font-weight: 600;"></div>
-  <a href="../ui/HomeScreen.html"><button id="back-button">Terug naar schatkaart</button></a>
+  
 </main>
 
 <script>
 (() => {
   const pirateItems = [
-    { type: 'hat', name: 'Piratenhoed', emoji: '👒' },
-    { type: 'eyepatch', name: 'Ooglap', emoji: '🏴‍☠️' },
-    { type: 'sword', name: 'Zwaard', emoji: '⚔️' },
-    { type: 'cannon', name: 'Kanon', emoji: '💣' },
-    { type: 'pirate', name: 'Piraat', emoji: '🏴‍☠️' },
-    { type: 'ship', name: 'Piratenschip', emoji: '⛵' },
-    { type: 'parrot', name: 'Papegaai', emoji: '🦜' },
-    { type: 'treasure', name: 'Schatkist', emoji: '📦' },
-    { type: 'map', name: 'Schatkaart', emoji: '🗺️' },
-    { type: 'flag', name: 'Piratenvlag', emoji: '🏴‍☠️' },
-    { type: 'coins', name: 'Gouden munten', emoji: '🪙' },
-    { type: 'hook', name: 'Haak', emoji: '🪝' },
-    { type: 'boat', name: 'Roeiboot', emoji: '🚣' },
-    { type: 'telescope', name: 'Verrekijker', emoji: '🔭' },
-    { type: 'anchor', name: 'Anker', emoji: '⚓' }
+    { type: 'hat', name: 'Piratenhoed', emoji: '👒'},
+    { type: 'eyepatch', name: 'Ooglap', emoji: '☠️'},
+    { type: 'sword', name: 'Zwaard', emoji: '⚔️'},
+    { type: 'cannon', name: 'Kanon', emoji: '💣'},
+    { type: 'pirate', name: 'Piraat', emoji: '👁️‍🗨️'},
+    { type: 'ship', name: 'Piratenschip', emoji: '⛵'},
+    { type: 'parrot', name: 'Papegaai', emoji: '🦜'},
+    { type: 'treasure', name: 'Schatkist', emoji: '📦'},
+    { type: 'map', name: 'Schatkaart', emoji: '🗺️'},
+    { type: 'flag', name: 'Piratenvlag', emoji: '🏴‍☠️'},
+    { type: 'coins', name: 'Gouden munten', emoji: '🪙'},
+    { type: 'hook', name: 'Haak', emoji: '🪝'},
+    { type: 'boat', name: 'Roeiboot', emoji: '🚣'},
+    { type: 'telescope', name: 'Verrekijker', emoji: '🔭'},
+    { type: 'anchor', name: 'Anker', emoji: '⚓'}
   ];
 
   let level = 1;
