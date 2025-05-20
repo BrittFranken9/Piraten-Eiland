@@ -178,6 +178,26 @@
     font-size: 6rem;
     margin: 1rem 0;
   }
+
+#back-button {
+  background-color: #1a3f66;
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#back-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#back-button:hover:not(:disabled) {
+  background-color: #0f2747;
+}
 </style>
 </head>
 <body>
@@ -190,6 +210,7 @@
     <div id="feedback" class="feedback" style="display:none;"></div>
     <div id="hint" class="hint" style="display:none;"></div>
     <div class="actions" id="actions"></div>
+    <a href="../ui/HomeScreen.html"><button id="back-button">Terug naar schatkaart</button></a>
   </div>
 
 <script>

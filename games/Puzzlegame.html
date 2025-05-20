@@ -161,7 +161,7 @@ button:hover:not(:disabled) {
       <div id="feedback" class="feedback"></div>
 
       <div class="buttons">
-        <button id="back-button">Terug naar beginscherm</button>
+        <a href="../ui/HomeScreen.html"><button id="back-button">Terug naar schatkaart</button></a>
         <button id="restart-button" disabled>Opnieuw beginnen</button>
       </div>
     </main>
@@ -209,9 +209,6 @@ const feedbackEl = document.getElementById('feedback');
 const backButton = document.getElementById('back-button');
 const restartButton = document.getElementById('restart-button');
 
-backButton.addEventListener('click', () => {
-  alert('Terug naar beginscherm - voeg hier je navigatie toe');
-});
 
 restartButton.addEventListener('click', () => {
   initializePuzzle();

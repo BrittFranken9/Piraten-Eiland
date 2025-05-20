@@ -346,15 +346,20 @@
       app.appendChild(successDiv);
 
       document.getElementById('btn-back').onclick = () => {
-        alert('Terug naar beginscherm (function kan je aanpassen)');
-      };
-      document.getElementById('btn-restart').onclick = () => {
-        currentSegment = 0;
-        correctAnswers = 0;
-        hasAwardedPoints = false;
-        resetState();
-        render();
-      };
+  window.location.href = '../ui/HomeScreen.html';
+};
+
+document.getElementById('btn-restart').onclick = () => {
+  // Je bestaande reset code
+  currentSegment = 0;
+  correctAnswers = 0;
+  hasAwardedPoints = false;
+  resetState();
+  render();
+
+  // En daarna naar HomeScreen.html navigeren
+  window.location.href = '../ui/HomeScreen.html';
+};
 
       return;
     }
