@@ -5,40 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Piraten Doolhof</title>
   <style>
-    body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #fffbea;
-  margin: 0; padding: 20px;
-  display: flex;
-  justify-content: center;
-  color: #444;
-}
+     
+     @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
 
-.game-container {
-  max-width: 600px;
-  background: white;
-  padding: 20px 24px;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgb(198 134 0 / 0.3);
-}
+     body {
+    font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
 
-.game-container h1 {
+header {
+  background-image: url('../images/Perkament.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  width: 100%; max-width: 640px;
+  padding: 1rem;
+  min-height: 120px;
   text-align: center;
-  margin-bottom: 20px;
-  color: #c68600;
-  font-weight: 700;
-  letter-spacing: 1.2px;
+  color: #464C50;
+  font-weight: bold;
+  font-size: 3rem;
+  letter-spacing: 1.5px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
+
+.title {
+  padding-top: 7%;
+  }
+
 
 #level-info {
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 16px;
-  color: #c68600;
+      background: rgba(255 255 255 / 0.9);
+    max-width: 640px;
+    margin: 2rem 1rem 4rem;
+    padding: 1rem;
+    border-radius: 12px;
+    color: #1a3f66;
+        align-items: center;
+    align-self: center;
+    align-content: center;
+    font-size: 2rem;
 }
 
 #grid {
-  border: 2px solid #c68600;
+  border: 2px solid #D25D10;
   border-radius: 6px;
   margin-bottom: 16px;
   display: grid;
@@ -46,15 +59,14 @@
 }
 
 .cell {
-  width: 40px;
-  height: 40px;
+  width: 100px;
+  height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 24px;
-  border: 1px solid #ddd;
   user-select: none;
-  background: #f9f1d1;
+  background: #E8E6DA;
 }
 
 .cell.water {
@@ -63,16 +75,16 @@
 }
 
 .cell.obstacle {
-  background: #7a7a7a;
+  background: #464C50;
   color: white;
 }
 
 .cell.goal {
-  background: #ffd700;
+  background: #D25D10;
 }
 
 .cell.pirate {
-  background: #f9f1d1;
+  background: #E2DBAF;
 }
 
 #commands {
@@ -87,20 +99,21 @@
   border: 1px solid #ccc;
   font-weight: 600;
   color: #555;
+  align-items: center;
+  justify-content: center;
 }
 
 .command {
-  width: 36px;
-  height: 36px;
-  background: #a0d2ff;
-  border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  cursor: default;
-  user-select: none;
-  transition: background-color 0.3s ease;
+    background: #D25D10;
+    border: none;
+    color: #E2DBAF;
+    padding: 0.6rem 1.4rem;
+    margin: 0 0.5rem 0.5rem 0;
+    font-weight: regular;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 .command.executed {
@@ -109,20 +122,22 @@
 }
 
 button.game-button {
-  margin: 4px 6px 4px 0;
-  padding: 10px 14px;
-  background-color: #c68600;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    background: #464C50;
+    border: none;
+    color: #E2DBAF;
+    padding: 0.6rem 1.4rem;
+    margin: 0 0.5rem 0.5rem 0;
+    font-weight: regular;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 button.game-button:disabled {
-  background-color: #d3a734;
-  cursor: not-allowed;
+      background: #E8E6DA;
+    color: #464C50;
+    cursor: default;
 }
 
 #feedback {
@@ -131,6 +146,7 @@ button.game-button:disabled {
   border-radius: 8px;
   font-weight: 700;
   text-align: center;
+  margin-bottom: 3rem;
 }
 
 #feedback.success {
@@ -150,29 +166,49 @@ button.game-button:disabled {
 }
 
 button {
-  background-color: #1a3f66;
-  border: none;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+    background: #464C50;
+    border: none;
+    color: #E2DBAF;
+    padding: 0.6rem 1.4rem;
+    margin: 0 0.5rem 0.5rem 0;
+    font-weight: regular;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    background: #E8E6DA;
+    color: #464C50;
+    cursor: default;
 }
 
 button:hover:not(:disabled) {
-  background-color: #0f2747;
+      background: #E8E6DA;
+    color: #464C50;
+    cursor: default;
 }
+
+#back-button {
+    background: #464C50;
+    border: none;
+    color: #E2DBAF;
+    padding: 0.6rem 1.4rem;
+    margin: 0 0.5rem 0.5rem 0;
+    font-weight: regular;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-bottom: 6rem;
+  }
   </style>
 </head>
 <body>
- <div id="game-container" class="game-container">
-  <h1>Piraten Doolhof</h1>
+
+<header class="title">
+Piraten Doolhof</header>
   <div id="level-info"></div>
   <div id="grid"></div>
 
@@ -287,8 +323,8 @@ button:hover:not(:disabled) {
       const currentLevel = mazeLevels[level];
       const rows = currentLevel.grid.length;
       const cols = currentLevel.grid[0].length;
-      gridEl.style.gridTemplateRows = `repeat(${rows}, 40px)`;
-      gridEl.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
 
       gridEl.innerHTML = '';
 
