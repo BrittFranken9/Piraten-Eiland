@@ -11,33 +11,32 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
 
-  body {
-    font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
-    color: #fff;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column; align-items: center;
-  }
+body {
+  font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-header {
-  background-image: url('../images/Perkament.svg');
-  background-repeat: no-repeat;
-  background-size: contain;
+  height: 100vh;
+  background-image: url('../images/4.jpg');
   background-position: center center;
-  width: 100%; max-width: 640px;
-  padding: 1rem;
-  min-height: 120px;
-  text-align: center;
-  color: #464C50;
-  font-weight: bold;
-  font-size: 3rem;
-  letter-spacing: 1.5px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.title {
-  padding-top: 7%;
-  }
+header {
+  width: 100%; max-width: 640px;
+  padding: 1rem;
+  text-align: center;
+  color: #492821;
+  font-weight: bold;
+  font-size: 5rem;
+  letter-spacing: 1.5px;
+}
 
   main {
     background: rgba(255 255 255 / 0.9);
@@ -153,21 +152,21 @@ header {
 <script>
 (() => {
   const pirateItems = [
-    { type: 'hat', name: 'Piratenhoed', emoji: '👒'},
-    { type: 'eyepatch', name: 'Ooglap', emoji: '☠️'},
-    { type: 'sword', name: 'Zwaard', emoji: '⚔️'},
-    { type: 'cannon', name: 'Kanon', emoji: '💣'},
-    { type: 'pirate', name: 'Piraat', emoji: '👁️‍🗨️'},
-    { type: 'ship', name: 'Piratenschip', emoji: '⛵'},
-    { type: 'parrot', name: 'Papegaai', emoji: '🦜'},
-    { type: 'treasure', name: 'Schatkist', emoji: '📦'},
-    { type: 'map', name: 'Schatkaart', emoji: '🗺️'},
-    { type: 'flag', name: 'Piratenvlag', emoji: '🏴‍☠️'},
-    { type: 'coins', name: 'Gouden munten', emoji: '🪙'},
-    { type: 'hook', name: 'Haak', emoji: '🪝'},
-    { type: 'boat', name: 'Roeiboot', emoji: '🚣'},
-    { type: 'telescope', name: 'Verrekijker', emoji: '🔭'},
-    { type: 'anchor', name: 'Anker', emoji: '⚓'}
+    { type: 'hat', name: 'Piratenhoed', emoji: '👒' },
+    { type: 'eyepatch', name: 'Ooglap', emoji: '☠️' },
+    { type: 'sword', name: 'Zwaard', emoji: '⚔️' },
+    { type: 'cannon', name: 'Kanon', emoji: '💣' },
+    { type: 'pirate', name: 'Piraat', emoji: '👁️‍🗨️' },
+    { type: 'ship', name: 'Piratenschip', emoji: '⛵' },
+    { type: 'parrot', name: 'Papegaai', emoji: '🦜' },
+    { type: 'treasure', name: 'Schatkist', emoji: '📦' },
+    { type: 'map', name: 'Schatkaart', emoji: '🗺️' },
+    { type: 'flag', name: 'Piratenvlag', emoji: '🏴‍☠️' },
+    { type: 'coins', name: 'Gouden munten', emoji: '🪙' },
+    { type: 'hook', name: 'Haak', emoji: '🪝' },
+    { type: 'boat', name: 'Roeiboot', emoji: '🚣' },
+    { type: 'telescope', name: 'Verrekijker', emoji: '🔭' },
+    { type: 'anchor', name: 'Anker', emoji: '⚓' }
   ];
 
   let level = 1;
@@ -186,8 +185,11 @@ header {
   const nextLevelBtn = document.getElementById('next-level-btn');
   const messageEl = document.getElementById('message');
 
+  // 🎵 Geluiden
+  const levelCompleteSound = new Audio('../sounds/pirate-arr-63543.mp3');
+  const gameCompleteSound = new Audio('../sounds/level-win-6416.mp3');
+
   function generateCards(level) {
-    // aantal paren tussen 2 en 8, vergelijkbaar met React code
     const numPairs = Math.min(Math.max(2, Math.floor(level / 1.5) + 1), 8);
     const selectedItems = [...pirateItems].sort(() => Math.random() - 0.5).slice(0, numPairs);
     const pairs = selectedItems.flatMap((item, index) => ([
@@ -217,8 +219,7 @@ header {
   }
 
   function calculateStars() {
-    // Max score 5, gebaseerd op efficiency
-    const perfectScore = cards.length; // aantal kaarten
+    const perfectScore = cards.length;
     const score = Math.max(1, Math.min(5, Math.ceil(perfectScore / Math.max(1, moves) * 5)));
     return '⭐'.repeat(score) + '☆'.repeat(5 - score);
   }
@@ -231,7 +232,6 @@ header {
     if (card.flipped || card.matched) return;
     if (flippedIndexes.length >= 2) return;
 
-    // flip card
     card.flipped = true;
     flippedIndexes.push(index);
     renderCards();
@@ -246,7 +246,6 @@ header {
       const card2 = cards[i2];
 
       if (card1.type === card2.type) {
-        // Match
         setTimeout(() => {
           card1.matched = true;
           card2.matched = true;
@@ -257,7 +256,6 @@ header {
           checkGameComplete();
         }, 600);
       } else {
-        // Geen match
         setTimeout(() => {
           card1.flipped = false;
           card2.flipped = false;
@@ -272,6 +270,13 @@ header {
   function checkGameComplete() {
     if (matchedPairs === cards.length / 2) {
       messageEl.textContent = `Niveau ${level} voltooid in ${moves} zetten!`;
+
+      if (level >= maxLevel) {
+        gameCompleteSound.play(); // 🎉 Laatste niveau gehaald
+      } else {
+        levelCompleteSound.play(); // ✅ Normaal niveau gehaald
+      }
+
       nextLevelBtn.disabled = level >= maxLevel;
       restartBtn.disabled = false;
     }
@@ -303,8 +308,8 @@ header {
 
   // Start game
   startLevel(level);
-
 })();
+
 </script>
 
 </body>

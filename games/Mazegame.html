@@ -9,27 +9,28 @@
      @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
 
      body {
-    font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
-    color: #fff;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column; align-items: center;
+      font-family: 'Pirata One', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url('../images/1.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
   }
 
 header {
-  background-image: url('../images/Perkament.svg');
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center center;
   width: 100%; max-width: 640px;
   padding: 1rem;
-  min-height: 120px;
   text-align: center;
-  color: #464C50;
+  color: #492821;
   font-weight: bold;
-  font-size: 3rem;
+  font-size: 5rem;
   letter-spacing: 1.5px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
 }
 
 .title {
@@ -288,6 +289,11 @@ Piraten Doolhof</header>
     const levelInfoEl = document.getElementById('level-info');
     const btnNext = document.getElementById('btn-next');
 
+    // 🎵 Geluiden
+  const levelCompleteSound = new Audio('../sounds/pirate-arr-63543.mp3');
+  const gameCompleteSound = new Audio('../sounds/level-win-6416.mp3');
+
+
     // Direction arrows map
     const arrows = {
       up: '⬆️',
@@ -465,18 +471,26 @@ cellDiv.classList.add(cellType === 'empty' ? 'empty' : cellType);
       }
     }
 
-    function checkGoal() {
-      const currentLevel = mazeLevels[level];
-      if (playerPosition.row === currentLevel.goal.row &&
-          playerPosition.col === currentLevel.goal.col) {
-        gameStatus = 'won';
-        showFeedback('Gewonnen! 🎉', 'success');
-        btnNext.style.display = (level < mazeLevels.length - 1) ? 'inline-block' : 'none';
-      } else {
-        gameStatus = 'lost';
-        showFeedback('Helaas niet bij de schat gekomen!', 'error');
-      }
+function checkGoal() {
+  const currentLevel = mazeLevels[level];
+  const atGoal = playerPosition.row === currentLevel.goal.row &&
+                 playerPosition.col === currentLevel.goal.col;
+
+  if (atGoal) {
+    gameStatus = 'won';
+    showFeedback('Gewonnen! 🎉', 'success');
+
+    if (level < mazeLevels.length - 1) {
+      levelCompleteSound.play(); // Speel geluid voor niveau voltooid
+      btnNext.style.display = 'inline-block';
+    } else {
+      gameCompleteSound.play(); // Speel geluid voor hele spel voltooid
     }
+  } else {
+    gameStatus = 'lost';
+    showFeedback('Helaas niet bij de schat gekomen!', 'error');
+  }
+}
 
     function showFeedback(message, type) {
       feedbackEl.textContent = message;
